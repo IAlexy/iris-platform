@@ -93,10 +93,11 @@ const mockPublications: Publication[] = [
   },
 ];
 
-describe('Desktop Web Component UI Automation Tests', () => {
+describe('Desktop Web Component UI Full Automation Tests', () => {
   it('1. Sidebar renders brand and navigation triggers', () => {
     const onSelect = vi.fn();
     const onOpenImport = vi.fn();
+    const onOpenNewCircle = vi.fn();
 
     render(
       <Sidebar
@@ -104,7 +105,7 @@ describe('Desktop Web Component UI Automation Tests', () => {
         activeCircleId="22222222-2222-2222-2222-222222222222"
         onSelectCircle={onSelect}
         onOpenImport={onOpenImport}
-        onOpenNewCircle={vi.fn()}
+        onOpenNewCircle={onOpenNewCircle}
       />
     );
 
@@ -119,29 +120,75 @@ describe('Desktop Web Component UI Automation Tests', () => {
     const familyCircleBtn = screen.getByText('Famille & Vacances 2026');
     fireEvent.click(familyCircleBtn);
     expect(onSelect).toHaveBeenCalledWith('11111111-1111-1111-1111-111111111111');
+
+    const newCircleBtn = screen.getByText('Créer un Cercle');
+    fireEvent.click(newCircleBtn);
+    expect(onOpenNewCircle).toHaveBeenCalledTimes(1);
   });
 
-  it('2. FeedView displays camera gear, human-made proof, and critique pins', () => {
+  it('2. FeedView displays badges, handles pin clicks, and image pin drops', () => {
     const onAddPin = vi.fn();
 
     render(<FeedView publications={mockPublications} onAddCritiquePin={onAddPin} />);
 
-    // Verification badges
+    // Badges
     expect(screen.getByText(/Sony A7IV/)).toBeInTheDocument();
     expect(screen.getByText('Création 100% Humaine Vérifiée')).toBeInTheDocument();
     expect(screen.getByText('Chiffré SAS 15m (Anti-Scraping)')).toBeInTheDocument();
 
-    // Toggle critique mode
+    // Image click while critique mode is OFF -> should not call onAddPin
+    const imageContainer = screen.getByRole('img').parentElement!;
+    fireEvent.click(imageContainer, { clientX: 200, clientY: 100 });
+    expect(onAddPin).not.toHaveBeenCalled();
+
+    // Toggle critique mode ON
     const critiqueModeBtn = screen.getByText(/Mode Critique/);
     fireEvent.click(critiqueModeBtn);
 
     expect(
       screen.getByText("Cliquez sur l'image pour épingler une critique technique")
     ).toBeInTheDocument();
+
+    // Click on image canvas to add a new pin
+    // Mock getBoundingClientRect
+    vi.spyOn(imageContainer, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      width: 1000,
+      height: 600,
+      right: 1000,
+      bottom: 600,
+      x: 0,
+      y: 0,
+      toJSON: () => {},
+    });
+
+    fireEvent.click(imageContainer, { clientX: 450, clientY: 300 });
+    expect(onAddPin).toHaveBeenCalledWith('pub-1', 45, 50);
+
+    // Click on existing pin to inspect tooltip
+    const pinBtn = screen.getByRole('button', { name: '' });
+    fireEvent.click(pinBtn);
+
+    expect(screen.getByText(/Superbe transition des teintes dorées/)).toBeInTheDocument();
+
+    // Click pin again to close tooltip
+    fireEvent.click(pinBtn);
+    expect(screen.queryByText(/Superbe transition des teintes dorées/)).not.toBeInTheDocument();
+
+    // Toggle critique mode OFF
+    fireEvent.click(critiqueModeBtn);
+    expect(
+      screen.queryByText("Cliquez sur l'image pour épingler une critique technique")
+    ).not.toBeInTheDocument();
   });
 
-  it('3. CircleInspector displays active policies and triggers quick import', () => {
+  it('3. CircleInspector handles undefined circle, renders policies, and form submit', () => {
     const onQuickImport = vi.fn();
+
+    // Undefined circle -> null
+    const { unmount } = render(<CircleInspector circle={undefined} onQuickImport={onQuickImport} />);
+    unmount();
 
     render(<CircleInspector circle={mockCircles[0]} onQuickImport={onQuickImport} />);
 
@@ -150,49 +197,117 @@ describe('Desktop Web Component UI Automation Tests', () => {
     expect(screen.getByText('Preuve Matériel (EXIF)')).toBeInTheDocument();
     expect(screen.getByText('Nettoyage GPS')).toBeInTheDocument();
 
+    // Empty input submit -> does not call onQuickImport
+    const submitBtn = screen.getByText('Archiver dans le Cercle');
+    fireEvent.click(submitBtn);
+    expect(onQuickImport).not.toHaveBeenCalled();
+
+    // Fill valid URL
     const input = screen.getByPlaceholderText(/instagram\.com/);
     fireEvent.change(input, { target: { value: 'https://instagram.com/p/12345' } });
-
-    const submitBtn = screen.getByText('Archiver dans le Cercle');
     fireEvent.click(submitBtn);
 
     expect(onQuickImport).toHaveBeenCalledWith('https://instagram.com/p/12345');
   });
 
-  it('4. SocialImportModal detects platforms: Instagram, Cara, X, Reddit', () => {
+  it('4. SocialImportModal handles all platforms, select dropdown, cancel and close', async () => {
+    const onClose = vi.fn();
+    const onImport = vi.fn();
+
+    // Hidden when isOpen is false
+    const { unmount } = render(
+      <SocialImportModal
+        isOpen={false}
+        onClose={onClose}
+        circles={mockCircles}
+        onImport={onImport}
+      />
+    );
+    unmount();
+
     render(
       <SocialImportModal
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={onClose}
         circles={mockCircles}
-        onImport={vi.fn()}
+        onImport={onImport}
       />
     );
 
     const input = screen.getByPlaceholderText(/instagram\.com/);
 
-    // Test Instagram detection
+    // Test Instagram
     fireEvent.change(input, { target: { value: 'https://www.instagram.com/p/DB12345678/' } });
     expect(screen.getByText(/Instagram détecté/)).toBeInTheDocument();
 
-    // Test Cara Art detection
+    // Test Cara
     fireEvent.change(input, { target: { value: 'https://cara.app/post/digital-art-123' } });
     expect(screen.getByText(/Cara Art détecté/)).toBeInTheDocument();
 
-    // Test X/Twitter detection
+    // Test X/Twitter
     fireEvent.change(input, { target: { value: 'https://x.com/artist/status/987654321' } });
     expect(screen.getByText(/X \/ Twitter détecté/)).toBeInTheDocument();
+
+    // Test Threads
+    fireEvent.change(input, { target: { value: 'https://threads.net/@user/post/abc' } });
+    expect(screen.getByText(/Threads détecté/)).toBeInTheDocument();
+
+    // Test Reddit
+    fireEvent.change(input, { target: { value: 'https://reddit.com/r/art/comments/123' } });
+    expect(screen.getByText(/Reddit détecté/)).toBeInTheDocument();
+
+    // Select circle
+    const select = screen.getByRole('combobox');
+    fireEvent.change(select, { target: { value: '11111111-1111-1111-1111-111111111111' } });
+
+    // Submit import
+    const submitBtn = screen.getByText('Importer dans le Cercle');
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(onImport).toHaveBeenCalledWith(
+        'https://reddit.com/r/art/comments/123',
+        '11111111-1111-1111-1111-111111111111'
+      );
+      expect(onClose).toHaveBeenCalled();
+    });
+
+    // Close buttons
+    const cancelBtn = screen.getByText('Annuler');
+    fireEvent.click(cancelBtn);
+    expect(onClose).toHaveBeenCalled();
   });
 
-  it('5. Full App E2E integration renders studio view and header', async () => {
+  it('5. Full App E2E integration: circle switching and modal triggers', async () => {
     render(<App />);
 
-    // Wait for async load of mock circles and feed
+    // Wait for initial load
     await waitFor(() => {
-      const items = screen.getAllByText(/Atelier Photographes/);
-      expect(items.length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Atelier Photographes/)[0]).toBeInTheDocument();
     });
 
     expect(screen.getByText(/Flux Privé Déchiffré/)).toBeInTheDocument();
+
+    // Switch to Family Circle
+    const familyCircle = screen.getByText('Famille & Vacances 2026');
+    fireEvent.click(familyCircle);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 1, name: 'Famille & Vacances 2026' })).toBeInTheDocument();
+    });
+
+    // Open Social Import modal via Header button
+    const headerImportBtn = screen.getByText('+ Importer Social');
+    fireEvent.click(headerImportBtn);
+
+    expect(screen.getByText('Import Social Universel')).toBeInTheDocument();
+
+    // Close modal
+    const cancelBtn = screen.getByText('Annuler');
+    fireEvent.click(cancelBtn);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Import Social Universel')).not.toBeInTheDocument();
+    });
   });
 });

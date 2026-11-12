@@ -275,3 +275,5 @@ app.MapPost("/api/social-import", async (
 .WithOpenApi();
 
 app.Run();
+
+public partial class Program { }

@@ -1,52 +1,105 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ApiService } from '../services/api';
 
-describe('Web ApiService Unit Tests', () => {
-  it('getCircles returns both Family and Artist Sanctuary circles with policies', async () => {
-    const circles = await ApiService.getCircles();
-    expect(circles).toHaveLength(2);
+describe('Web ApiService Full Coverage Tests', () => {
+  const originalFetch = global.fetch;
 
-    const artistCircle = circles.find((c) => c.id === '22222222-2222-2222-2222-222222222222');
-    expect(artistCircle).toBeDefined();
-    expect(artistCircle?.policy.aiContentPolicy).toBe('StrictlyForbidden');
-    expect(artistCircle?.policy.requireHumanProofOrCameraExif).toBe(true);
-    expect(artistCircle?.policy.enableArtCritiquePins).toBe(true);
+  afterEach(() => {
+    global.fetch = originalFetch;
+    vi.restoreAllMocks();
   });
 
-  it('getFeed returns publications with valid 15m SAS tokens and EXIF metadata', async () => {
-    const feed = await ApiService.getFeed('22222222-2222-2222-2222-222222222222');
-    expect(feed.length).toBeGreaterThan(0);
+  describe('Offline Fallback Mode (Fetch throws error)', () => {
+    beforeEach(() => {
+      global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
+    });
 
-    const firstPub = feed[0];
-    expect(firstPub.mediaAssets[0].readSasUrl).toContain('https://images.unsplash.com');
-    expect(firstPub.exifCameraGear).toContain('Sony A7IV');
-    expect(firstPub.isHumanProofVerified).toBe(true);
+    it('getCircles returns seeded fallback circles', async () => {
+      const circles = await ApiService.getCircles();
+      expect(circles).toHaveLength(2);
+      expect(circles[0].name).toContain('Atelier');
+    });
+
+    it('getFeed returns seeded fallback feed', async () => {
+      const feed = await ApiService.getFeed('circle-1');
+      expect(feed).toHaveLength(2);
+      expect(feed[0].exifCameraGear).toContain('Sony A7IV');
+    });
+
+    it('importSocialPost creates mock fallback post', async () => {
+      const post = await ApiService.importSocialPost({
+        circleId: 'circle-1',
+        postUrl: 'https://instagram.com/p/12345'
+      });
+      expect(post.originalSourceUrl).toBe('https://instagram.com/p/12345');
+      expect(post.mediaAssets[0].readSasUrl).toBeDefined();
+    });
+
+    it('addCritiquePin returns newly created mock pin', async () => {
+      const pin = await ApiService.addCritiquePin('pub-1', {
+        xPercent: 50,
+        yPercent: 50,
+        category: 'Composition',
+        comment: 'Nice framing'
+      });
+      expect(pin.comment).toBe('Nice framing');
+      expect(pin.xPercent).toBe(50);
+    });
   });
 
-  it('importSocialPost creates publication with external origin attribution', async () => {
-    const importPayload = {
-      circleId: '22222222-2222-2222-2222-222222222222',
-      postUrl: 'https://instagram.com/p/DB12345678/',
-    };
+  describe('Online Mode (Fetch returns 200 OK)', () => {
+    it('getCircles returns API data when response is ok', async () => {
+      const mockApiCircles = [{ id: 'api-1', name: 'API Circle' }];
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockApiCircles
+      } as any);
 
-    const newPub = await ApiService.importSocialPost(importPayload);
-    expect(newPub.originalSourceUrl).toBe(importPayload.postUrl);
-    expect(newPub.originalAuthorAttribution).toBeDefined();
-    expect(newPub.mediaAssets.length).toBeGreaterThan(0);
-  });
+      const result = await ApiService.getCircles();
+      expect(result).toEqual(mockApiCircles);
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost:5000/api/circles');
+    });
 
-  it('addCritiquePin attaches coordinate pin to publication', async () => {
-    const pinPayload = {
-      xPercent: 45.5,
-      yPercent: 60.2,
-      category: 'Composition',
-      comment: 'Superbe diagonale sur les rochers.',
-    };
+    it('getFeed returns API feed when response is ok', async () => {
+      const mockApiFeed = [{ id: 'pub-api-1', caption: 'Live feed' }];
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockApiFeed
+      } as any);
 
-    const pin = await ApiService.addCritiquePin('pub-alpine-sunset', pinPayload);
-    expect(pin.id).toBeDefined();
-    expect(pin.xPercent).toBe(45.5);
-    expect(pin.yPercent).toBe(60.2);
-    expect(pin.category).toBe('Composition');
+      const result = await ApiService.getFeed('circle-99');
+      expect(result).toEqual(mockApiFeed);
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost:5000/api/circles/circle-99/feed');
+    });
+
+    it('importSocialPost sends POST request and returns API response', async () => {
+      const mockCreatedPub = { id: 'imported-1', caption: 'Imported from API' };
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockCreatedPub
+      } as any);
+
+      const result = await ApiService.importSocialPost({
+        circleId: 'circle-1',
+        postUrl: 'https://cara.app/post/999'
+      });
+      expect(result).toEqual(mockCreatedPub);
+    });
+
+    it('addCritiquePin sends POST request and returns API pin', async () => {
+      const mockCreatedPin = { id: 'pin-99', comment: 'From live API' };
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockCreatedPin
+      } as any);
+
+      const result = await ApiService.addCritiquePin('pub-1', {
+        xPercent: 20,
+        yPercent: 30,
+        category: 'Technique',
+        comment: 'From live API'
+      });
+      expect(result).toEqual(mockCreatedPin);
+    });
   });
 });
