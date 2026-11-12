@@ -1,8 +1,51 @@
+# =====================================================================
+# Git Ignore for Iris Platform (Backend .NET, Desktop Web & Mobile Expo)
+# =====================================================================
+
+# Build & Output
 bin/
 obj/
+dist/
+build/
+.output/
 *.user
 *.suo
 .vs/
+.vscode/
+
+# Dependencies
 node_modules/
-dist/
+.npm/
+
+# Mobile (Expo / React Native)
+.expo/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# Test Results & Coverage
+TestResults/
+test-results/
+coverage/
+playwright-report/
+.nyc_output/
+*.lcov
+*.opencover.xml
+
+# Environment & Secrets
 .env
+.env.*
+!.env.example
+*.pem
+*.pfx
+
+# OS Artifacts
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
