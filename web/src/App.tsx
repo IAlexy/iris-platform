@@ -14,12 +14,7 @@ export function App() {
   const [loading, setLoading] = useState(true);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
   const loadData = async () => {
-    setLoading(true);
     try {
       const circleList = await ApiService.getCircles();
       setCircles(circleList);
@@ -33,6 +28,10 @@ export function App() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const handleSelectCircle = async (id: string) => {
     setActiveCircleId(id);

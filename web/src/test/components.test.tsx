@@ -160,7 +160,7 @@ describe('Desktop Web Component UI Automation Tests', () => {
   });
 
   it('4. SocialImportModal detects platforms: Instagram, Cara, X, Reddit', () => {
-    const { rerender } = render(
+    render(
       <SocialImportModal
         isOpen={true}
         onClose={vi.fn()}

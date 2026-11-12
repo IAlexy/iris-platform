@@ -27,12 +27,7 @@ export default function App() {
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [activeTab, setActiveTab] = useState<'feed' | 'import' | 'qr' | 'profile'>('feed');
 
-  useEffect(() => {
-    loadInitialData();
-  }, []);
-
   const loadInitialData = async () => {
-    setLoading(true);
     try {
       const circleList = await ApiService.getCircles();
       setCircles(circleList);
@@ -46,6 +41,10 @@ export default function App() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadInitialData();
+  }, []);
 
   const handleSelectCircle = async (circleId: string) => {
     setActiveCircleId(circleId);
