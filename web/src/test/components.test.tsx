@@ -4,6 +4,14 @@ import { Sidebar } from '../components/Sidebar';
 import { CircleInspector } from '../components/CircleInspector';
 import { SocialImportModal } from '../components/SocialImportModal';
 import { FeedView } from '../components/FeedView';
+import { MosaicPhotoGallery } from '../components/MosaicPhotoGallery';
+import {
+  getBreakpointMode,
+  getMosaicCycleLength,
+  getMosaicTilePlacement,
+  getResponsiveMosaicColumns,
+  getSmartObjectPosition,
+} from '../utils/mosaicLayout';
 import { App } from '../App';
 import { CircleSummary, Publication } from '../types';
 
@@ -309,5 +317,148 @@ describe('Desktop Web Component UI Full Automation Tests', () => {
     await waitFor(() => {
       expect(screen.queryByText('Import Social Universel')).not.toBeInTheDocument();
     });
+  });
+
+  it('6. Adaptive Mosaic Layout algorithm places AA (left 2x2), normal row, LL (right 2x2) on 9-col & 6-col, and classic 3-per-line on small screens', () => {
+    // Responsive breakpoints check: >=1280 -> 9, 768..1279 -> 6, <768 -> 3
+    expect(getResponsiveMosaicColumns(1600)).toBe(9);
+    expect(getResponsiveMosaicColumns(1280)).toBe(9);
+    expect(getResponsiveMosaicColumns(1024)).toBe(6);
+    expect(getResponsiveMosaicColumns(768)).toBe(6);
+    expect(getResponsiveMosaicColumns(600)).toBe(3);
+    expect(getResponsiveMosaicColumns(390)).toBe(3);
+
+    expect(getBreakpointMode(9)).toBe('desktop-9');
+    expect(getBreakpointMode(6)).toBe('medium-6');
+    expect(getBreakpointMode(3)).toBe('mobile-3');
+
+    // Small screen (3 columns): classic 3 pictures per line (all 1x1 standard, 18 per cycle)
+    expect(getMosaicCycleLength(3)).toBe(18);
+    expect(getMosaicTilePlacement(0, 3).variant).toBe('standard');
+    expect(getMosaicTilePlacement(0, 3).colSpan).toBe(1);
+    expect(getMosaicTilePlacement(11, 3).variant).toBe('standard');
+
+    // Medium screen (6 columns): 6*6 - 6 = 30 photos, AA at 0, LL at 4*6 - 5 = 19
+    expect(getMosaicCycleLength(6)).toBe(30);
+    expect(getMosaicTilePlacement(0, 6).variant).toBe('hero-left');
+    expect(getMosaicTilePlacement(19, 6).variant).toBe('hero-right');
+    expect(getMosaicTilePlacement(19, 6).gridColumn).toBe('5 / span 2');
+
+    // Big screen (9 columns): 6*9 - 6 = 48 photos, AA at 0, LL at 4*9 - 5 = 31
+    const cols = 9;
+    expect(getMosaicCycleLength(cols)).toBe(48);
+
+    const aa = getMosaicTilePlacement(0, cols);
+    expect(aa.variant).toBe('hero-left');
+    expect(aa.colSpan).toBe(2);
+    expect(aa.rowSpan).toBe(2);
+    expect(aa.gridColumn).toBe('1 / span 2');
+    expect(aa.gridRow).toBe('span 2');
+
+    for (let i = 1; i <= 30; i++) {
+      const tile = getMosaicTilePlacement(i, cols);
+      expect(tile.variant).toBe('standard');
+      expect(tile.colSpan).toBe(1);
+      expect(tile.rowSpan).toBe(1);
+    }
+
+    const ll = getMosaicTilePlacement(31, cols);
+    expect(ll.variant).toBe('hero-right');
+    expect(ll.colSpan).toBe(2);
+    expect(ll.rowSpan).toBe(2);
+    expect(ll.gridColumn).toBe('8 / span 2');
+    expect(ll.gridRow).toBe('span 2');
+
+    for (let i = 32; i < 48; i++) {
+      expect(getMosaicTilePlacement(i, cols).variant).toBe('standard');
+    }
+
+    expect(getMosaicTilePlacement(48, cols).variant).toBe('hero-left');
+  });
+
+  it('7. Smart focal centering (getSmartObjectPosition) centers truncated thumbnails on the main subject', () => {
+    // Explicit focal point
+    expect(getSmartObjectPosition({ focalPoint: { xPercent: 58, yPercent: 42 } })).toBe('58% 42%');
+
+    // Critique pins centroid
+    expect(
+      getSmartObjectPosition({
+        critiquePins: [
+          { xPercent: 60, yPercent: 30 },
+          { xPercent: 70, yPercent: 50 },
+        ],
+      })
+    ).toBe('65% 40%');
+
+    // Portrait orientation heuristic (upper third)
+    expect(getSmartObjectPosition({ width: 1200, height: 1800 })).toBe('50% 28%');
+
+    // Panoramic orientation heuristic
+    expect(getSmartObjectPosition({ width: 2400, height: 1100 })).toBe('50% 42%');
+
+    // Default center
+    expect(getSmartObjectPosition({ width: 1600, height: 1200 })).toBe('50% 50%');
+  });
+
+  it('8. MosaicPhotoGallery responds to window resize, preview mode switchers, and opens Full-Picture Lightbox on click', () => {
+    const onSelectPub = vi.fn();
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1440 });
+
+    render(
+      <MosaicPhotoGallery
+        publications={mockPublications}
+        selectedPubId="pub-1"
+        onSelectPublication={onSelectPub}
+        fillCycleShowcase={true}
+      />
+    );
+
+    const grid = screen.getByTestId('iris-mosaic-grid');
+    expect(grid).toHaveAttribute('data-columns', '9');
+    expect(grid).toHaveAttribute('data-layout-mode', 'mosaic-9');
+
+    // Simulate resize to Medium screen (900px -> 6 columns)
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 900 });
+    fireEvent(window, new Event('resize'));
+    expect(grid).toHaveAttribute('data-columns', '6');
+    expect(grid).toHaveAttribute('data-layout-mode', 'mosaic-6');
+
+    // Simulate resize to Small screen (500px -> 3 columns classic mode)
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 500 });
+    fireEvent(window, new Event('resize'));
+    expect(grid).toHaveAttribute('data-columns', '3');
+    expect(grid).toHaveAttribute('data-layout-mode', 'classic-3');
+    expect(screen.getByTestId('mosaic-tile-0')).toHaveAttribute('data-variant', 'standard');
+
+    // Interactive Mockup Switcher buttons (9 col, 6 col, 3 col, Auto)
+    fireEvent.click(screen.getByTestId('preview-mode-9'));
+    expect(grid).toHaveAttribute('data-columns', '9');
+    expect(screen.getByTestId('mosaic-tile-0')).toHaveAttribute('data-variant', 'hero-left');
+    expect(screen.getByTestId('mosaic-tile-31')).toHaveAttribute('data-variant', 'hero-right');
+
+    fireEvent.click(screen.getByTestId('preview-mode-6'));
+    expect(grid).toHaveAttribute('data-columns', '6');
+    expect(screen.getByTestId('mosaic-tile-19')).toHaveAttribute('data-variant', 'hero-right');
+
+    fireEvent.click(screen.getByTestId('preview-mode-3'));
+    expect(grid).toHaveAttribute('data-columns', '3');
+
+    fireEvent.click(screen.getByTestId('preview-mode-auto'));
+    expect(grid).toHaveAttribute('data-columns', '3');
+
+    // Click on tile 0 -> Opens Full-Picture Lightbox Modal
+    fireEvent.click(screen.getByTestId('mosaic-tile-0'));
+    expect(onSelectPub).toHaveBeenCalledWith('pub-1');
+    expect(screen.getByTestId('photo-lightbox-modal')).toBeInTheDocument();
+    expect(screen.getByTestId('lightbox-full-image')).toHaveClass('object-contain');
+
+    // Navigate next & prev in Lightbox via buttons and keyboard
+    fireEvent.click(screen.getByTestId('lightbox-next-btn'));
+    fireEvent.click(screen.getByTestId('lightbox-prev-btn'));
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    fireEvent.keyDown(window, { key: 'ArrowLeft' });
+    fireEvent.keyDown(window, { key: 'Escape' });
+
+    expect(screen.queryByTestId('photo-lightbox-modal')).not.toBeInTheDocument();
   });
 });

@@ -10,6 +10,7 @@ import {
   Info
 } from 'lucide-react';
 import { Publication, CritiquePin } from '../types';
+import { MosaicPhotoGallery } from './MosaicPhotoGallery';
 
 interface FeedViewProps {
   publications: Publication[];
@@ -19,6 +20,9 @@ interface FeedViewProps {
 export const FeedView: React.FC<FeedViewProps> = ({ publications, onAddCritiquePin }) => {
   const [activeCritiquePubId, setActiveCritiquePubId] = useState<string | null>(null);
   const [selectedPin, setSelectedPin] = useState<CritiquePin | null>(null);
+  const [selectedMosaicPubId, setSelectedMosaicPubId] = useState<string | null>(
+    publications[0]?.id ?? null
+  );
 
   const handleImageClick = (e: React.MouseEvent<HTMLDivElement>, pubId: string) => {
     if (activeCritiquePubId !== pubId) return;
@@ -31,7 +35,13 @@ export const FeedView: React.FC<FeedViewProps> = ({ publications, onAddCritiqueP
   };
 
   return (
-    <div className="flex-1 overflow-y-auto px-8 py-6 space-y-8 max-w-4xl mx-auto">
+    <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8 max-w-6xl mx-auto w-full">
+      {/* Adaptive Mosaic Gallery (AA 2x2 Left / 9 Small / LL 2x2 Right / 9 Small) */}
+      <MosaicPhotoGallery
+        publications={publications}
+        selectedPubId={selectedMosaicPubId}
+        onSelectPublication={(pubId) => setSelectedMosaicPubId(pubId)}
+      />
       {publications.map((pub) => {
         const isCritiqueActive = activeCritiquePubId === pub.id;
         const mainMedia = pub.mediaAssets[0];

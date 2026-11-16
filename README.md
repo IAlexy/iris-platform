@@ -21,6 +21,15 @@ Iris comble le fossé entre les messageries instantanées (groupes fermés mais 
    - Épinglage d'annotations techniques géolocalisées sur les coordonnées de l'image (*Composition*, *Couleur/Lumière*, *Technique*).
 5. **Import & Archivage Social Universel** :
    - Importation en un clic depuis **Instagram**, **Cara Art**, **X/Twitter**, **Threads** ou **Reddit** avec conservation de l'attribution originale.
+6. **Galerie Mosaïque Adaptative, Centrage Intelligent & Visionneuse Plein Format** :
+   - **Disposition Responsive 3 Paliers** :
+     - **Grand Écran (`≥ 1280px` — 9 colonnes)** : Cycle de `48` photos (`6N - 6`) alternant Focus `AA` en **2×2 à gauche**, ligne normale `1×1`, Focus `LL` en **2×2 à droite** (`grid-auto-flow: dense`), et ligne normale `1×1`.
+     - **Écran Moyen (`768px – 1279px` — 6 colonnes)** : Mosaïque harmonieuse à 6 colonnes (Cycle de `30` photos avec `AA` et `LL` en `2×2`).
+     - **Petit Écran (`< 768px` — 3 colonnes)** : Affichage classique **3 photos par ligne** (`1×1` uniforme).
+   - **Centrage Intelligent sur le Sujet (`getSmartObjectPosition`)** : Les miniatures tronquées en `1:1` ajustent automatiquement leur `object-position: X% Y%` sur le point focal du sujet, le barycentre des épingles de critique, ou le tiers supérieur pour les portraits.
+   - **Visionneuse Plein Format (`PhotoLightboxModal`)** : Un clic sur n'importe quelle miniature ouvre l'image originale **100% entière et non tronquée** (`object-contain`) avec ses métadonnées EXIF et navigation clavier (`←` / `→` / `Esc`).
+
+![Mockups Responsives Mosaïque Iris](./docs/mockups/iris-mosaic-responsive-mockup.svg)
 
 ---
 
@@ -64,8 +73,8 @@ iris-platform/
 | Projet | Framework | Tests | Couverture de Lignes | Statut |
 | :--- | :--- | :--- | :--- | :--- |
 | **Backend** | xUnit (.NET 8) + Coverlet | **33 Tests** | **97.60%** | 🟢 Conforme |
-| **Desktop Web** | Vitest + React Testing Library | **13 Tests** | **92.56%** | 🟢 Conforme |
-| **Mobile App** | Vitest | **12 Tests** | **100.00%** | 🟢 Conforme |
+| **Desktop Web** | Vitest + React Testing Library | **16 Tests** | **94.52%** | 🟢 Conforme |
+| **Mobile App** | Vitest | **13 Tests** | **100.00%** | 🟢 Conforme |
 | **E2E UI** | Playwright (Chromium) | **6 Scénarios** | UI Complète | 🟢 Configuré |
 
 ### Lancer la suite de tests complète :

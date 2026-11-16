@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 460" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0A0812"/>
+      <stop offset="100%" stop-color="#130E24"/>
+    </linearGradient>
+    <linearGradient id="heroAA" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#4C1D95"/>
+    </linearGradient>
+    <linearGradient id="heroLL" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#A855F7"/>
+      <stop offset="100%" stop-color="#6D28D9"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1120" height="460" rx="18" fill="url(#bg)" stroke="#2E2254" stroke-width="2"/>
+
+  <!-- Header -->
+  <text x="32" y="38" fill="#FFFFFF" font-family="sans-serif" font-size="17" font-weight="bold">
+    🟣 Iris Adaptive Photo Display — Mockups Responsives &amp; Visionneuse Plein Format
+  </text>
+  <text x="32" y="58" fill="#C4B5FD" font-family="sans-serif" font-size="12">
+    Alignement géométrique CSS 1:1 (AA &amp; LL = 2×2 exact) • Centrage intelligent (object-position) • Clic = Photo entière non tronquée
+  </text>
+
+  <!-- PANEL 1: DESKTOP 9 COLUMNS -->
+  <rect x="28" y="76" width="465" height="356" rx="12" fill="#130E24" stroke="#7C3AED" stroke-width="1.5"/>
+  <text x="44" y="102" fill="#DDD6FE" font-family="sans-serif" font-size="13" font-weight="bold">
+    🖥️ Grand Écran (≥ 1280px) — 9 Colonnes (Cycle 48 photos)
+  </text>
+  <text x="44" y="118" fill="#94A3B8" font-family="sans-serif" font-size="10.5">
+    Lignes 1-2: AA (2×2 Gauche) • Ligne 3: 9×(1×1) • Lignes 4-5: LL (2×2 Droite) • Ligne 6: 9×(1×1)
+  </text>
+
+  <!-- 9-col Grid Drawing (origin x=44, y=132, cell=44, gap=4 -> pitch=48) -->
+  <!-- AA 2x2 Left (Rows 1-2, Cols 1-2) -->
+  <rect x="44" y="132" width="92" height="92" rx="6" fill="url(#heroAA)" stroke="#DDD6FE" stroke-width="1.5"/>
+  <text x="90" y="182" text-anchor="middle" fill="#FFFFFF" font-family="sans-serif" font-size="14" font-weight="bold">AA (2×2)</text>
+
+  <!-- Row 1 Cols 3..9 -->
+  <g fill="#1D1636" stroke="#4C1D95" stroke-width="1">
+    <rect x="140" y="132" width="44" height="44" rx="4"/><rect x="188" y="132" width="44" height="44" rx="4"/>
+    <rect x="236" y="132" width="44" height="44" rx="4"/><rect x="284" y="132" width="44" height="44" rx="4"/>
+    <rect x="332" y="132" width="44" height="44" rx="4"/><rect x="380" y="132" width="44" height="44" rx="4"/>
+    <rect x="428" y="132" width="44" height="44" rx="4"/>
+    <!-- Row 2 Cols 3..9 -->
+    <rect x="140" y="180" width="44" height="44" rx="4"/><rect x="188" y="180" width="44" height="44" rx="4"/>
+    <rect x="236" y="180" width="44" height="44" rx="4"/><rect x="284" y="180" width="44" height="44" rx="4"/>
+    <rect x="332" y="180" width="44" height="44" rx="4"/><rect x="380" y="180" width="44" height="44" rx="4"/>
+    <rect x="428" y="180" width="44" height="44" rx="4"/>
+    <!-- Row 3 Normal (Cols 1..9) -->
+    <rect x="44" y="228" width="44" height="44" rx="4"/><rect x="92" y="228" width="44" height="44" rx="4"/>
+    <rect x="140" y="228" width="44" height="44" rx="4"/><rect x="188" y="228" width="44" height="44" rx="4"/>
+    <rect x="236" y="228" width="44" height="44" rx="4"/><rect x="284" y="228" width="44" height="44" rx="4"/>
+    <rect x="332" y="228" width="44" height="44" rx="4"/><rect x="380" y="228" width="44" height="44" rx="4"/>
+    <rect x="428" y="228" width="44" height="44" rx="4"/>
+    <!-- Row 4 Cols 1..7 -->
+    <rect x="44" y="276" width="44" height="44" rx="4"/><rect x="92" y="276" width="44" height="44" rx="4"/>
+    <rect x="140" y="276" width="44" height="44" rx="4"/><rect x="188" y="276" width="44" height="44" rx="4"/>
+    <rect x="236" y="276" width="44" height="44" rx="4"/><rect x="284" y="276" width="44" height="44" rx="4"/>
+    <rect x="332" y="276" width="44" height="44" rx="4"/>
+    <!-- Row 5 Cols 1..7 -->
+    <rect x="44" y="324" width="44" height="44" rx="4"/><rect x="92" y="324" width="44" height="44" rx="4"/>
+    <rect x="140" y="324" width="44" height="44" rx="4"/><rect x="188" y="324" width="44" height="44" rx="4"/>
+    <rect x="236" y="324" width="44" height="44" rx="4"/><rect x="284" y="324" width="44" height="44" rx="4"/>
+    <rect x="332" y="324" width="44" height="44" rx="4"/>
+    <!-- Row 6 Normal (Cols 1..9) -->
+    <rect x="44" y="372" width="44" height="44" rx="4"/><rect x="92" y="372" width="44" height="44" rx="4"/>
+    <rect x="140" y="372" width="44" height="44" rx="4"/><rect x="188" y="372" width="44" height="44" rx="4"/>
+    <rect x="236" y="372" width="44" height="44" rx="4"/><rect x="284" y="372" width="44" height="44" rx="4"/>
+    <rect x="332" y="372" width="44" height="44" rx="4"/><rect x="380" y="372" width="44" height="44" rx="4"/>
+    <rect x="428" y="372" width="44" height="44" rx="4"/>
+  </g>
+  <!-- LL 2x2 Right (Rows 4-5, Cols 8-9) -->
+  <rect x="380" y="276" width="92" height="92" rx="6" fill="url(#heroLL)" stroke="#DDD6FE" stroke-width="1.5"/>
+  <text x="426" y="326" text-anchor="middle" fill="#FFFFFF" font-family="sans-serif" font-size="14" font-weight="bold">LL (2×2)</text>
+
+  <!-- PANEL 2: MEDIUM 6 COLUMNS -->
+  <rect x="512" y="76" width="320" height="356" rx="12" fill="#130E24" stroke="#6366F1" stroke-width="1.5"/>
+  <text x="528" y="102" fill="#DDD6FE" font-family="sans-serif" font-size="13" font-weight="bold">
+    💻 Écran Moyen (768–1279px) — 6 Col
+  </text>
+  <text x="528" y="118" fill="#94A3B8" font-family="sans-serif" font-size="10.5">
+    Mosaïque 6 colonnes (Cycle = 30 photos)
+  </text>
+
+  <!-- 6-col Grid (origin x=528, y=132, cell=44, gap=4) -->
+  <rect x="528" y="132" width="92" height="92" rx="6" fill="url(#heroAA)" stroke="#DDD6FE" stroke-width="1.5"/>
+  <text x="574" y="182" text-anchor="middle" fill="#FFFFFF" font-family="sans-serif" font-size="13" font-weight="bold">AA</text>
+  <g fill="#1D1636" stroke="#4C1D95" stroke-width="1">
+    <rect x="624" y="132" width="44" height="44" rx="4"/><rect x="672" y="132" width="44" height="44" rx="4"/>
+    <rect x="720" y="132" width="44" height="44" rx="4"/><rect x="768" y="132" width="44" height="44" rx="4"/>
+    <rect x="624" y="180" width="44" height="44" rx="4"/><rect x="672" y="180" width="44" height="44" rx="4"/>
+    <rect x="720" y="180" width="44" height="44" rx="4"/><rect x="768" y="180" width="44" height="44" rx="4"/>
+    <!-- Row 3 -->
+    <rect x="528" y="228" width="44" height="44" rx="4"/><rect x="576" y="228" width="44" height="44" rx="4"/>
+    <rect x="624" y="228" width="44" height="44" rx="4"/><rect x="672" y="228" width="44" height="44" rx="4"/>
+    <rect x="720" y="228" width="44" height="44" rx="4"/><rect x="768" y="228" width="44" height="44" rx="4"/>
+    <!-- Rows 4-5 left -->
+    <rect x="528" y="276" width="44" height="44" rx="4"/><rect x="576" y="276" width="44" height="44" rx="4"/>
+    <rect x="624" y="276" width="44" height="44" rx="4"/><rect x="672" y="276" width="44" height="44" rx="4"/>
+    <rect x="528" y="324" width="44" height="44" rx="4"/><rect x="576" y="324" width="44" height="44" rx="4"/>
+    <rect x="624" y="324" width="44" height="44" rx="4"/><rect x="672" y="324" width="44" height="44" rx="4"/>
+    <!-- Row 6 -->
+    <rect x="528" y="372" width="44" height="44" rx="4"/><rect x="576" y="372" width="44" height="44" rx="4"/>
+    <rect x="624" y="372" width="44" height="44" rx="4"/><rect x="672" y="372" width="44" height="44" rx="4"/>
+    <rect x="720" y="372" width="44" height="44" rx="4"/><rect x="768" y="372" width="44" height="44" rx="4"/>
+  </g>
+  <rect x="720" y="276" width="92" height="92" rx="6" fill="url(#heroLL)" stroke="#DDD6FE" stroke-width="1.5"/>
+  <text x="766" y="326" text-anchor="middle" fill="#FFFFFF" font-family="sans-serif" font-size="13" font-weight="bold">LL</text>
+
+  <!-- PANEL 3: SMALL 3 COLUMNS + LIGHTBOX -->
+  <rect x="850" y="76" width="242" height="356" rx="12" fill="#130E24" stroke="#10B981" stroke-width="1.5"/>
+  <text x="866" y="102" fill="#DDD6FE" font-family="sans-serif" font-size="13" font-weight="bold">
+    📱 Petit (&lt;768px) — 3 Col
+  </text>
+  <text x="866" y="118" fill="#94A3B8" font-family="sans-serif" font-size="10.5">
+    Grille Classique 3 par ligne (1×1)
+  </text>
+
+  <g fill="#1D1636" stroke="#10B981" stroke-width="1">
+    <rect x="866" y="132" width="64" height="64" rx="5"/><rect x="938" y="132" width="64" height="64" rx="5"/><rect x="1010" y="132" width="64" height="64" rx="5"/>
+    <rect x="866" y="204" width="64" height="64" rx="5"/><rect x="938" y="204" width="64" height="64" rx="5"/><rect x="1010" y="204" width="64" height="64" rx="5"/>
+  </g>
+
+  <!-- Lightbox Callout Box -->
+  <rect x="866" y="284" width="208" height="132" rx="8" fill="#0A0812" stroke="#A855F7" stroke-width="1.5"/>
+  <text x="970" y="308" text-anchor="middle" fill="#A855F7" font-family="sans-serif" font-size="11.5" font-weight="bold">
+    🔍 Clic = Visionneuse Intégrale
+  </text>
+  <text x="970" y="328" text-anchor="middle" fill="#DDD6FE" font-family="sans-serif" font-size="10">
+    • Grille : Miniature 1:1 centrée
+  </text>
+  <text x="970" y="344" text-anchor="middle" fill="#DDD6FE" font-family="sans-serif" font-size="10">
+    sur le sujet (object-position)
+  </text>
+  <text x="970" y="366" text-anchor="middle" fill="#10B981" font-family="sans-serif" font-size="10" font-weight="bold">
+    • Modale : Photo 100% complète
+  </text>
+  <text x="970" y="382" text-anchor="middle" fill="#10B981" font-family="sans-serif" font-size="10">
+    non tronquée (object-contain)
+  </text>
+  <text x="970" y="400" text-anchor="middle" fill="#94A3B8" font-family="sans-serif" font-size="9.5">
+    + Navigation Clavier ← / → / Esc
+  </text>
+</svg>

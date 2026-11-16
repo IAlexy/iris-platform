@@ -1,8 +1,17 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ApiService } from '../services/api';
 import { IrisColors } from '../theme/colors';
+import {
+  getMosaicCycleLength,
+  getMosaicTilePlacement,
+  getResponsiveMosaicColumns,
+} from '../utils/mosaicLayout';
 
 describe('Iris Mobile Stack Unit Tests', () => {
+  beforeEach(() => {
+    global.fetch = vi.fn().mockRejectedValue(new Error('Offline test mode'));
+  });
+
   it('Palette includes required Obsidian background and Royal Amethyst brand', () => {
     expect(IrisColors.background).toBe('#0A0812');
     expect(IrisColors.primary).toBe('#7C3AED');
@@ -25,7 +34,7 @@ describe('Iris Mobile Stack Unit Tests', () => {
   it('Mobile social import correctly attaches origin attribution', async () => {
     const imported = await ApiService.importSocialPost({
       circleId: '22222222-2222-2222-2222-222222222222',
-      postUrl: 'https://cara.app/post/12345'
+      postUrl: 'https://cara.app/post/12345',
     });
 
     expect(imported.id).toBeDefined();
@@ -38,11 +47,29 @@ describe('Iris Mobile Stack Unit Tests', () => {
       xPercent: 72.1,
       yPercent: 41.8,
       category: 'Color/Light',
-      comment: 'Ciel bien étalonné'
+      comment: 'Ciel bien étalonné',
     });
 
     expect(pin.xPercent).toBe(72.1);
     expect(pin.yPercent).toBe(41.8);
     expect(pin.category).toBe('Color/Light');
+  });
+
+  it('Responsive mosaic layout uses classic 3-per-line on mobile and AA/LL mosaic on medium (6) and big (9) screens', () => {
+    expect(getResponsiveMosaicColumns(390)).toBe(3);
+    expect(getResponsiveMosaicColumns(900)).toBe(6);
+    expect(getResponsiveMosaicColumns(1440)).toBe(9);
+
+    // Classic 3-column mobile mode: all 1x1 standard
+    expect(getMosaicCycleLength(3)).toBe(18);
+    expect(getMosaicTilePlacement(0, 3).variant).toBe('standard');
+    expect(getMosaicTilePlacement(0, 3).colSpan).toBe(1);
+
+    // Medium 6-column tablet mode: cycle = 30, AA at 0, LL at 4*6 - 5 = 19
+    expect(getMosaicCycleLength(6)).toBe(30);
+    expect(getMosaicTilePlacement(0, 6).variant).toBe('hero-left');
+    expect(getMosaicTilePlacement(1, 6).variant).toBe('standard');
+    expect(getMosaicTilePlacement(19, 6).variant).toBe('hero-right');
+    expect(getMosaicTilePlacement(29, 6).variant).toBe('standard');
   });
 });
