@@ -115,3 +115,12 @@ npm install
 npm run start
 # Flashez le QR Code avec l'application mobile Expo Go (iOS ou Android)
 ```
+
+---
+
+## ⚖️ Usage & Propriété Intellectuelle (Non-Commercial Showcase)
+
+> **Note importante / Portfolio Showcase Notice** :  
+> Ce projet a été conçu à titre de **démonstrateur d'architecture logicielle et de vitrine technique (R&D / Portfolio)**. Il est mis à disposition uniquement à des fins d'évaluation technique, d'apprentissage et de démonstration. **Toute exploitation, redistribution ou utilisation à des fins commerciales est strictement interdite** sans l'accord écrit préalable de l'auteur.
+>
+> *This repository is an engineering & software architecture showcase developed for demonstration, educational, and technical evaluation purposes only. **Any commercial use, resale, or production monetization is strictly prohibited** without prior written authorization from the author.*
